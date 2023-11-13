@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_placeholder">Search</string>
+    <string name="favourites_title">Favourites</string>
+    <string name="sessions_title">Sessions</string>
+    <string name="data">%d %s</string>
+    <string name="error_no_internet">No able to get sessions. Please check your Internet connection and try again</string>
+    <string name="try_again">Try again</string>
+    <string name="no_favourites">No favourites</string>
+</resources>
