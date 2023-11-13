@@ -27,7 +27,7 @@ import com.ilya.sessions.R
 import com.ilya.theme.LocalColorScheme
 
 
-fun LazyListScope.favourite(favouritesState: List<Session>) {
+fun LazyListScope.favourites(favouritesState: List<Session>) {
     item {
         LazyRow {
             if (favouritesState.isEmpty()) {
