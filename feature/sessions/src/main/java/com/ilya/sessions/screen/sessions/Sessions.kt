@@ -100,12 +100,14 @@ private fun Session(
     onFavouriteClick: (Session) -> Boolean,
     onSessionClick: (Session) -> Unit,
 ) {
-    Card(elevation = CardDefaults.cardElevation(10.dp),
+    Card(
+        elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(containerColor = LocalColorScheme.current.cardContainerColor),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onSessionClick(session) }) {
+            .clickable { onSessionClick(session) }
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
