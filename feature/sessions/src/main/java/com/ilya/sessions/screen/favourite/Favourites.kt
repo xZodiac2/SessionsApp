@@ -45,9 +45,10 @@ fun LazyListScope.favourites(favouritesState: List<Session>) {
                         )
                     }
                 }
-            }
-            items(favouritesState) {
-                Favourite(it)
+            } else {
+                items(favouritesState) {
+                    Favourite(it)
+                }
             }
         }
     }
