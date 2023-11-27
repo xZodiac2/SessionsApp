@@ -17,7 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsViewModel
-import com.ilya.sessions.screen.favourite.favourite
+import com.ilya.sessions.screen.favourite.favourites
 import com.ilya.sessions.screen.sessions.SessionScreenEvent
 import com.ilya.sessions.screen.sessions.sessions
 import com.ilya.theme.LocalColorScheme
@@ -37,7 +37,7 @@ fun SessionsScreen(
             .padding(horizontal = 20.dp)
             .fillMaxSize()
     ) {
-        favourite(favouriteStateFlow)
+        favourites(favouriteStateFlow)
         item {
             Text(
                 text = stringResource(id = R.string.sessions_title),

@@ -23,7 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,12 +100,14 @@ private fun Session(
     onFavouriteClick: (Session) -> Boolean,
     onSessionClick: (Session) -> Unit,
 ) {
-    Card(elevation = CardDefaults.cardElevation(10.dp),
+    Card(
+        elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(containerColor = LocalColorScheme.current.cardContainerColor),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onSessionClick(session) }) {
+            .clickable { onSessionClick(session) }
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
@@ -142,7 +144,7 @@ private fun Session(
                 )
             }
             
-            var isFavourite by remember { mutableStateOf(session.isFavourite) }
+            var isFavourite by rememberSaveable { mutableStateOf(session.isFavourite) }
             val iconId = if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
             
             IconButton(onClick = {
