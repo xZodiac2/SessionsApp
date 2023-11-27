@@ -21,13 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,67 +35,39 @@ import coil.compose.AsyncImage
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsError
-import com.ilya.sessions.SessionsState
+import com.ilya.sessions.models.GroupedSessions
+import com.ilya.sessions.screen.SessionsScreenState
 import com.ilya.theme.LocalColorScheme
-
+import com.ilya.theme.LocalTypography
 
 fun LazyListScope.sessions(
-    sessionsState: SessionsState,
-    onUnsuccessfulAdd: () -> Unit,
+    sessionsState: SessionsScreenState,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (Int) -> Unit,
     onTryAgainClick: () -> Unit,
-    onSessionClick: (Session) -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
 ) {
     when (sessionsState) {
-        is SessionsState.Loading -> loadingState()
-        is SessionsState.Error -> errorState(sessionsState.error, onTryAgainClick)
-        is SessionsState.ShowSessions -> showSessionsState(
-            sessionsState.sessions, onUnsuccessfulAdd, onSessionClick, onFavouriteClick
+        is SessionsScreenState.Loading -> loadingState()
+        is SessionsScreenState.Error -> errorState(sessionsState.error, onTryAgainClick)
+        is SessionsScreenState.ShowSessions -> showSessionState(
+            sessionsState.sessions,
+            onFavouriteClick,
+            onSessionClick
         )
-    }
-}
-
-private fun LazyListScope.showSessionsState(
-    sessions: List<Session>,
-    onUnsuccessfulAdd: () -> Unit,
-    onSessionClick: (Session) -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
-) {
-    var currentSessionDate = sessions.first().date
-    val groupedByDateSessions = mutableListOf<List<Session>>()
-    
-    var matchingDateSessions = mutableListOf<Session>()
-    sessions.forEach {
-        if (currentSessionDate == it.date) {
-            matchingDateSessions += it
-        } else {
-            groupedByDateSessions += matchingDateSessions
-            matchingDateSessions = mutableListOf()
-            matchingDateSessions += it
-        }
-        currentSessionDate = it.date
-    }
-    
-    items(groupedByDateSessions) {
-        Column {
-            Text(
-                text = it.first().date,
-                modifier = Modifier.padding(top = 14.dp),
-                color = LocalColorScheme.current.secondaryTextColor
-            )
-            it.forEach { session ->
-                Session(session, onUnsuccessfulAdd, onFavouriteClick, onSessionClick)
-            }
-        }
+        
+        is SessionsScreenState.ShowSearchedSessions -> showSessionState(
+            sessionsState.sessions,
+            onFavouriteClick,
+            onSessionClick
+        )
     }
 }
 
 @Composable
 private fun Session(
     session: Session,
-    onUnsuccessfulAdd: () -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
-    onSessionClick: (Session) -> Unit,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (Int) -> Unit,
 ) {
     Card(
         elevation = CardDefaults.cardElevation(10.dp),
@@ -106,7 +75,7 @@ private fun Session(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onSessionClick(session) }
+            .clickable { onSessionClick(session.id.toInt()) }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -123,7 +92,9 @@ private fun Session(
                     .clip(CircleShape),
                 contentScale = ContentScale.FillBounds
             )
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
                 Text(
                     text = session.speaker,
                     modifier = Modifier.width(200.dp),
@@ -144,26 +115,29 @@ private fun Session(
                 )
             }
             
-            var isFavourite by rememberSaveable { mutableStateOf(session.isFavourite) }
-            val iconId = if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
-            
-            IconButton(onClick = {
-                isFavourite = !isFavourite
-                val isUnsuccessful = !onFavouriteClick(session.copy(isFavourite = isFavourite))
-                if (isUnsuccessful) {
-                    isFavourite = !isFavourite
-                    onUnsuccessfulAdd()
+            IconButton(
+                onClick = {
+                    onFavouriteClick(session)
                 }
-            }) {
+            ) {
                 Icon(
-                    painter = painterResource(id = iconId),
+                    painter = painterResource(id = session.iconId()),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFavourite) LocalColorScheme.current.filledHeartIconTint else LocalColorScheme.current.outlinedHeartIconTint
+                    tint = session.tint()
                 )
             }
         }
     }
+}
+
+@Composable
+private fun Session.tint(): Color {
+    return if (isFavourite) LocalColorScheme.current.filledHeartIconTint else LocalColorScheme.current.outlinedHeartIconTint
+}
+
+private fun Session.iconId(): Int {
+    return if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
 }
 
 private fun LazyListScope.errorState(error: SessionsError, onTryAgainClick: () -> Unit) {
@@ -181,10 +155,32 @@ private fun NoInternetError(onTryAgainClick: () -> Unit) {
     }
 }
 
-fun LazyListScope.loadingState() {
+private fun LazyListScope.loadingState() {
     item {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
+        }
+    }
+}
+
+private fun LazyListScope.showSessionState(
+    sessions: List<GroupedSessions>,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (Int) -> Unit,
+) {
+    items(sessions) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Text(
+                text = it.date,
+                color = LocalColorScheme.current.secondaryTextColor,
+                fontSize = LocalTypography.current.tinyFontSize,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            it.sessions.forEach {
+                Session(it, onFavouriteClick, onSessionClick)
+            }
         }
     }
 }

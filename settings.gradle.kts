@@ -17,5 +17,6 @@ rootProject.name = "Sessions"
 include(":app")
 include(":theme")
 include(":data")
-include(":feature:sessions")
 include(":feature:sessionDetails")
+include(":feature:sessions")
+include(":core")

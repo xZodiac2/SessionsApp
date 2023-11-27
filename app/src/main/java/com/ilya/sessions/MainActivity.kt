@@ -3,47 +3,56 @@ package com.ilya.sessions
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.ilya.sessiondetails.screen.SessionDetailsScreen
+import com.ilya.sessions.navigation.Destination
 import com.ilya.sessions.screen.SessionsScreen
-import com.ilya.theme.LocalColorScheme
 import com.ilya.theme.SessionsAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SessionsAppTheme {
-                val snackbarHostState = remember { SnackbarHostState() }
-                val snackbarMessage = stringResource(id = R.string.unsuccessful_add)
-                val coroutineScope = rememberCoroutineScope()
+                val navController = rememberNavController()
                 
-                Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) },
-                    containerColor = LocalColorScheme.current.primary
-                ) {
-                    SessionsScreen(modifier = Modifier.padding(it), onSessionClick = {
-                    
-                    }, onUnsuccessfulAdd = {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(message = snackbarMessage)
-                        }
-                    })
+                NavHost(navController = navController, startDestination = Destination.MainScreen.route) {
+                    composable(Destination.MainScreen.route) {
+                        SessionsScreen(onSessionClick = {
+                            navController.navigate(
+                                Destination.SessionDetailsScreen.withArguments(it.toString())
+                            )
+                        })
+                    }
+                    composable(
+                        route = Destination.SessionDetailsScreen.withArgumentNames(KEY_SESSION_ID),
+                        arguments = listOf(navArgument(KEY_SESSION_ID) { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        SessionDetailsScreen(
+                            sessionId = backStackEntry.arguments?.getInt(KEY_SESSION_ID) ?: DEFAULT_SESSION_ID,
+                            onBackClick = {
+                                navController.navigate(Destination.MainScreen.route) {
+                                    launchSingleTop = true
+                                    popUpTo(Destination.MainScreen.route)
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
     }
     
+    private companion object {
+        const val KEY_SESSION_ID = "sessionId"
+        const val DEFAULT_SESSION_ID = -1
+    }
+    
 }
-

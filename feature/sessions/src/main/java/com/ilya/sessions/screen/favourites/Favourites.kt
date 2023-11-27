@@ -1,10 +1,10 @@
-package com.ilya.sessions.screen.favourite
+package com.ilya.sessions.screen.favourites
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,32 +22,53 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ilya.core.isFirst
+import com.ilya.core.isLast
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.theme.LocalColorScheme
 
-
-fun LazyListScope.favourites(favouritesState: List<Session>) {
+fun LazyListScope.favourites(favouriteList: List<Session>, onSessionClick: (Int) -> Unit) {
     item {
-        LazyRow {
-            if (favouritesState.isEmpty()) {
+        LazyRow(
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .height(150.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            if (favouriteList.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
+                            .padding(start = 20.dp)
+                            .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = stringResource(id = R.string.no_favourites),
+                            text = stringResource(id = R.string.no_favorites),
                             color = LocalColorScheme.current.secondaryTextColor,
                             fontSize = 20.sp
                         )
                     }
                 }
             } else {
-                items(favouritesState) {
-                    Favourite(it)
+                items(favouriteList) {
+                    val modifier = when (favouriteList.size) {
+                        1 -> Modifier.padding(horizontal = 20.dp)
+                        2 -> when {
+                            favouriteList.isFirst(it) -> Modifier.padding(start = 20.dp)
+                            favouriteList.isLast(it) -> Modifier.padding(horizontal = 20.dp)
+                            else -> Modifier
+                        }
+                        
+                        else -> when {
+                            favouriteList.isFirst(it) -> Modifier.padding(start = 20.dp)
+                            favouriteList.isLast(it) -> Modifier.padding(end = 20.dp)
+                            else -> Modifier.padding(horizontal = 20.dp)
+                        }
+                    }
+                    
+                    Favorite(it, onSessionClick, modifier)
                 }
             }
         }
@@ -55,11 +76,11 @@ fun LazyListScope.favourites(favouritesState: List<Session>) {
 }
 
 @Composable
-fun Favourite(session: Session) {
+fun Favorite(session: Session, onFavouriteClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .size(150.dp)
-            .padding(10.dp),
+            .clickable { onFavouriteClick(session.id.toInt()) },
         colors = CardDefaults.cardColors(containerColor = LocalColorScheme.current.cardContainerColor),
         elevation = CardDefaults.cardElevation(10.dp)
     ) {

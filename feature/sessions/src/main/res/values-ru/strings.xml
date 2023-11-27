@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="search_placeholder">Поиск</string>
-    <string name="favourites_title">Избранное</string>
+    <string name="favorites_title">Избранное</string>
     <string name="sessions_title">Сессии</string>
     <string name="data">%d %s</string>
     <string name="error_no_internet">Не получается получить сессии. Пожалуйста проверьте ваше подключение к интренету и попробуйте снова</string>
     <string name="try_again">Попробуйте снова</string>
-    <string name="no_favourites">Нет избранных</string>
+    <string name="no_favorites">Нет избранных</string>
+    <string name="unsuccessful_add">Нельзя добавить больше %s избранных</string>
+    <string name="search">Поиск</string>
 </resources>

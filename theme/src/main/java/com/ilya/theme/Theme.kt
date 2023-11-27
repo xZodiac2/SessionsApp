@@ -9,7 +9,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-
 @Composable
 fun SessionsAppTheme(content: @Composable () -> Unit) {
     val colorScheme = if (isSystemInDarkTheme()) {
@@ -21,7 +20,13 @@ fun SessionsAppTheme(content: @Composable () -> Unit) {
             filledHeartIconTint = DarkColorScheme.heartIconTint,
             outlinedHeartIconTint = DarkColorScheme.outlinedHeartIconTint,
             primaryTextColor = DarkColorScheme.primaryTextColor,
-            secondaryTextColor = DarkColorScheme.secondaryTextColor
+            secondaryTextColor = DarkColorScheme.secondaryTextColor,
+            containerTextFieldColor = DarkColorScheme.containerTextFieldColor,
+            valueTextFieldColor = DarkColorScheme.valueTextFieldColor,
+            trailingIconTextFieldColor = DarkColorScheme.trailingIconTextFieldColor,
+            leadingIconTextFieldColor = DarkColorScheme.leadingIconTextFieldColor,
+            indicatorTextFieldColor = DarkColorScheme.focusedIndicatorTextFieldColor,
+            placeholderTextFieldColor = DarkColorScheme.placeholderTextFieldColor
         )
     } else {
         ColorScheme()
