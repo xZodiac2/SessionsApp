@@ -16,7 +16,8 @@ data class ColorScheme(
     val valueTextFieldColor: Color = LightColorScheme.valueTextFieldColor,
     val trailingIconTextFieldColor: Color = LightColorScheme.trailingIconTextFieldColor,
     val leadingIconTextFieldColor: Color = LightColorScheme.leadingIconTextFieldColor,
-    val indicatorTextFieldColor: Color = LightColorScheme.indicatorTextFieldColor,
+    val focusedIndicatorTextFieldColor: Color = LightColorScheme.focusedIndicatorTextFieldColor,
+    val unfocusedIndicatorTextFieldColor: Color = LightColorScheme.unfocusedIndicatorTextFieldColor,
     val placeholderTextFieldColor: Color = LightColorScheme.placeholderTextFieldColor,
 )
 
@@ -33,7 +34,8 @@ object LightColorScheme {
     val valueTextFieldColor = Color.Black
     val trailingIconTextFieldColor = Color.Black
     val leadingIconTextFieldColor = Color.Black
-    val indicatorTextFieldColor = Color.Black
+    val focusedIndicatorTextFieldColor = Color.Black
+    val unfocusedIndicatorTextFieldColor = Color.DarkGray
     val placeholderTextFieldColor = Color.Black
 }
 
@@ -51,6 +53,7 @@ object DarkColorScheme {
     val trailingIconTextFieldColor = Color.White
     val leadingIconTextFieldColor = Color.White
     val focusedIndicatorTextFieldColor = Color.White
+    val unfocusedIndicatorTextFieldColor = Color.LightGray
     val placeholderTextFieldColor = Color.LightGray
 }
 

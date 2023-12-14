@@ -7,10 +7,12 @@ import com.ilya.core.TextReference
 import com.ilya.data.SessionsRepository
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.models.GroupedSessions
+import com.ilya.sessions.screen.AlertDialogState
 import com.ilya.sessions.screen.SessionsScreenEvent
 import com.ilya.sessions.screen.SessionsScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -31,6 +33,9 @@ class SessionsViewModel @Inject constructor(
     private val _searchFieldValueStateFlow = MutableStateFlow("")
     val searchValueStateFlow = _searchFieldValueStateFlow.asStateFlow()
     
+    private val _alertDialogStateFlow = MutableStateFlow<AlertDialogState>(AlertDialogState.Consumed)
+    val alertDialogStateFlow = _alertDialogStateFlow.asStateFlow()
+    
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
         _screenStateFlow.value = SessionsScreenState.Error(SessionsError.NoInternet)
     }
@@ -47,12 +52,28 @@ class SessionsViewModel @Inject constructor(
             is SessionsScreenEvent.Retry -> onRetry()
             is SessionsScreenEvent.AddFavourite -> onAddFavourite(event.session)
             is SessionsScreenEvent.Search -> onSearch(_searchFieldValueStateFlow.value)
-            is SessionsScreenEvent.Input -> onInput(event.value)
+            is SessionsScreenEvent.SearchInput -> onSearchInput(event.value)
+            is SessionsScreenEvent.BackPress -> onBackPress()
         }
     }
     
     fun onSnackbarConsumed() {
         _snackbarEventStateFlow.value = SessionsStateEvent.Consumed
+    }
+    
+    fun onAlertDialogConsumed() {
+        _alertDialogStateFlow.value = AlertDialogState.Consumed
+    }
+    
+    private fun onBackPress() {
+        val title = TextReference.StringRef(R.string.quit_alert_title)
+        val confirmButtonText = TextReference.StringRef(R.string.ok)
+        val dismissButtonText = TextReference.StringRef(R.string.dismiss)
+        _alertDialogStateFlow.value = AlertDialogState.Triggered(
+            title = title,
+            confirmButtonText = confirmButtonText,
+            dismissButtonText = dismissButtonText
+        )
     }
     
     private fun onStart() {
@@ -99,46 +120,43 @@ class SessionsViewModel @Inject constructor(
     }
     
     private fun getFavouriteSessionIndex(session: Session, list: List<Session> = sessionsList): Int {
-        return if (session.isFavourite) {
-            list.indexOf(session.copy(isFavourite = true))
-        } else {
-            list.indexOf(session)
-        }
+        return list.indexOf(session)
     }
     
-    private fun onInput(value: String) {
+    private fun onSearchInput(value: String) {
         _searchFieldValueStateFlow.value = value
     }
     
     private fun onSearch(searchBy: String) {
         _screenStateFlow.value = SessionsScreenState.Loading
         
-        viewModelScope.launch {
+        if (searchBy.isBlank() || searchBy.isBlank() && _screenStateFlow.value is SessionsScreenState.ShowSearchedSessions) {
+            _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
+            return
+        }
+        
+        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
+            val favouriteIds = getFavouritesList().map { it.id }
+            
             val sessions = repository
                 .searchSessions(searchBy.trim())
                 .map { session ->
-                    val sessionAsFavourite = session.copy(isFavourite = true)
                     
-                    if (getFavouritesList().contains(sessionAsFavourite)) {
-                        sessionAsFavourite
+                    if (favouriteIds.contains(session.id)) {
+                        session.copy(isFavourite = true)
                     } else {
                         session
                     }
                 }
             
-            _screenStateFlow.value =
-                if (searchBy.isBlank() || searchBy.isBlank() && _screenStateFlow.value is SessionsScreenState.ShowSearchedSessions) {
-                    SessionsScreenState.ShowSessions(grouped(sessionsList))
-                } else {
-                    SessionsScreenState.ShowSearchedSessions(grouped(sessions))
-                }
+            _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(grouped(sessions))
         }
     }
     
     private fun getAllSessions() {
         _screenStateFlow.value = SessionsScreenState.Loading
         
-        viewModelScope.launch(exceptionHandler) {
+        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             val sessions = repository.getAllSessions()
             sessionsList.clear()
             sessionsList.addAll(sessions)
@@ -148,7 +166,7 @@ class SessionsViewModel @Inject constructor(
     
     
     private fun isFavouritesFilled(): Boolean {
-        return getFavouritesList().size >= 3
+        return getFavouritesList().size >= FAVOURITES_LIMIT
     }
     
     private fun grouped(sessions: List<Session>): List<GroupedSessions> {

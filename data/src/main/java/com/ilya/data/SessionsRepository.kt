@@ -20,8 +20,19 @@ class SessionsRepository @Inject internal constructor(
         return withContext(Dispatchers.IO) { api.getAllSessions() }.filter { it.isMatchingWithQuery(query) }
     }
     
-    suspend fun getSessionById(id: Int): Session {
-        return withContext(Dispatchers.IO) { api.getAllSessions() }.first { it.id.toInt() == id }
+    suspend fun getSessionById(id: String): Session {
+        return withContext(Dispatchers.IO) { api.getAllSessions() }.first { it.id == id }
+    }
+    
+    private fun Session.isMatchingWithQuery(query: String): Boolean {
+        val combinations = listOf(
+            speaker,
+            speaker.replace("\\s".toRegex(), ""),
+            description,
+            description.replace("\\s".toRegex(), "")
+        )
+        
+        return combinations.any { it.contains(query, ignoreCase = true) }
     }
     
 }

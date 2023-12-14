@@ -9,4 +9,7 @@
     <string name="no_favorites">Нет избранных</string>
     <string name="unsuccessful_add">Нельзя добавить больше %s избранных</string>
     <string name="search">Поиск</string>
+    <string name="ok">Ок</string>
+    <string name="quit_alert_title">Вы действительно хотите выйти?</string>
+    <string name="dismiss">Отмена</string>
 </resources>

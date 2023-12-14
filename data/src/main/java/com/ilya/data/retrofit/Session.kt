@@ -10,15 +10,4 @@ data class Session(
     @Json(name = "timeInterval") val timeInterval: String,
     @Json(name = "id") val id: String,
     @Json(name = "isFavourite") val isFavourite: Boolean,
-) {
-    fun isMatchingWithQuery(query: String): Boolean {
-        val combinations = listOf(
-            speaker,
-            speaker.replace("\\s".toRegex(), ""),
-            description,
-            description.replace("\\s".toRegex(), "")
-        )
-        
-        return combinations.any { it.contains(query, ignoreCase = true) }
-    }
-}
+)

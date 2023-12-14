@@ -25,7 +25,8 @@ fun SessionsAppTheme(content: @Composable () -> Unit) {
             valueTextFieldColor = DarkColorScheme.valueTextFieldColor,
             trailingIconTextFieldColor = DarkColorScheme.trailingIconTextFieldColor,
             leadingIconTextFieldColor = DarkColorScheme.leadingIconTextFieldColor,
-            indicatorTextFieldColor = DarkColorScheme.focusedIndicatorTextFieldColor,
+            focusedIndicatorTextFieldColor = DarkColorScheme.focusedIndicatorTextFieldColor,
+            unfocusedIndicatorTextFieldColor = DarkColorScheme.unfocusedIndicatorTextFieldColor,
             placeholderTextFieldColor = DarkColorScheme.placeholderTextFieldColor
         )
     } else {

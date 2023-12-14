@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -29,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -40,22 +39,23 @@ import com.ilya.sessions.screen.SessionsScreenState
 import com.ilya.theme.LocalColorScheme
 import com.ilya.theme.LocalTypography
 
-fun LazyListScope.sessions(
+@Composable
+fun Sessions(
     sessionsState: SessionsScreenState,
     onFavouriteClick: (Session) -> Unit,
-    onSessionClick: (Int) -> Unit,
+    onSessionClick: (String) -> Unit,
     onTryAgainClick: () -> Unit,
 ) {
     when (sessionsState) {
-        is SessionsScreenState.Loading -> loadingState()
-        is SessionsScreenState.Error -> errorState(sessionsState.error, onTryAgainClick)
-        is SessionsScreenState.ShowSessions -> showSessionState(
+        is SessionsScreenState.Loading -> LoadingState()
+        is SessionsScreenState.Error -> ErrorState(sessionsState.error, onTryAgainClick)
+        is SessionsScreenState.ShowSessions -> ShowSessionsState(
             sessionsState.sessions,
             onFavouriteClick,
             onSessionClick
         )
         
-        is SessionsScreenState.ShowSearchedSessions -> showSessionState(
+        is SessionsScreenState.ShowSearchedSessions -> ShowSessionsState(
             sessionsState.sessions,
             onFavouriteClick,
             onSessionClick
@@ -67,15 +67,15 @@ fun LazyListScope.sessions(
 private fun Session(
     session: Session,
     onFavouriteClick: (Session) -> Unit,
-    onSessionClick: (Int) -> Unit,
+    onSessionClick: (String) -> Unit,
 ) {
     Card(
-        elevation = CardDefaults.cardElevation(10.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = LocalColorScheme.current.cardContainerColor),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onSessionClick(session.id.toInt()) }
+            .padding(vertical = 6.dp)
+            .clickable { onSessionClick(session.id) }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -140,38 +140,53 @@ private fun Session.iconId(): Int {
     return if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
 }
 
-private fun LazyListScope.errorState(error: SessionsError, onTryAgainClick: () -> Unit) {
-    when (error) {
-        is SessionsError.NoInternet -> item { NoInternetError(onTryAgainClick) }
+@Composable
+private fun ErrorState(error: SessionsError, onTryAgainClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 40.dp, vertical = 160.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        when (error) {
+            is SessionsError.NoInternet -> NoInternetError(onTryAgainClick)
+        }
     }
 }
 
 @Composable
 private fun NoInternetError(onTryAgainClick: () -> Unit) {
-    Text(text = stringResource(id = R.string.error_no_internet))
+    Text(
+        text = stringResource(id = R.string.error_no_internet),
+        color = LocalColorScheme.current.primaryTextColor,
+        textAlign = TextAlign.Center
+    )
     
     Button(onClick = onTryAgainClick) {
         Text(text = stringResource(id = R.string.try_again))
     }
 }
 
-private fun LazyListScope.loadingState() {
-    item {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    }
+@Composable
+private fun LoadingState() {
+    Box(
+        modifier = Modifier
+            .height(500.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) { CircularProgressIndicator() }
 }
 
-private fun LazyListScope.showSessionState(
+@Composable
+private fun ShowSessionsState(
     sessions: List<GroupedSessions>,
     onFavouriteClick: (Session) -> Unit,
-    onSessionClick: (Int) -> Unit,
+    onSessionClick: (String) -> Unit,
 ) {
-    items(sessions) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        sessions.forEach {
             Text(
                 text = it.date,
                 color = LocalColorScheme.current.secondaryTextColor,

@@ -9,4 +9,7 @@
     <string name="no_favorites">No favorites</string>
     <string name="unsuccessful_add">Can\'t add more then %s favorites</string>
     <string name="search">Search</string>
+    <string name="ok">Ok</string>
+    <string name="quit_alert_title">Are you sure you want to quit?</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

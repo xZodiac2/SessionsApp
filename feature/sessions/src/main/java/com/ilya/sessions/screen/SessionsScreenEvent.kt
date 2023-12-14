@@ -6,6 +6,7 @@ sealed interface SessionsScreenEvent {
     object Start : SessionsScreenEvent
     object Retry : SessionsScreenEvent
     object Search : SessionsScreenEvent
+    object BackPress : SessionsScreenEvent
     data class AddFavourite(val session: Session) : SessionsScreenEvent
-    data class Input(val value: String) : SessionsScreenEvent
+    data class SearchInput(val value: String) : SessionsScreenEvent
 }

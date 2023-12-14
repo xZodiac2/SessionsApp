@@ -38,7 +38,7 @@ import com.ilya.theme.LocalTypography
 
 @Composable
 fun SessionDetailsScreen(
-    sessionId: Int,
+    sessionId: String,
     onBackClick: () -> Unit,
     detailsViewModel: SessionDetailsViewModel = hiltViewModel(),
 ) {
