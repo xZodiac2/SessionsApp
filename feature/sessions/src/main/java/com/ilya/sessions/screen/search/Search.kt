@@ -16,8 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,14 +24,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.ilya.sessions.R
-import com.ilya.sessions.SessionsViewModel
 import com.ilya.sessions.screen.SessionsScreenEvent
 import com.ilya.theme.LocalColorScheme
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-fun SearchContent(viewModel: SessionsViewModel) {
-    val searchValue by viewModel.searchValueStateFlow.collectAsState()
+fun SearchContent(
+    searchValueState: String,
+    onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     
     Box(
@@ -46,15 +46,15 @@ fun SearchContent(viewModel: SessionsViewModel) {
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth(),
-            value = searchValue,
-            onValueChange = { viewModel.handleEvent(SessionsScreenEvent.SearchInput(it)) },
+            value = searchValueState,
+            onValueChange = { onValueChange(it) },
             leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = null) },
             trailingIcon = {
-                if (searchValue.isNotBlank()) {
+                if (searchValueState.isNotBlank()) {
                     IconButton(
                         onClick = {
-                            viewModel.handleEvent(SessionsScreenEvent.SearchInput(""))
-                            viewModel.handleEvent(SessionsScreenEvent.Search)
+                            onValueChange("")
+                            onSearch()
                         }
                     ) {
                         Icon(imageVector = Icons.Outlined.Close, contentDescription = null)
@@ -63,7 +63,7 @@ fun SearchContent(viewModel: SessionsViewModel) {
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                viewModel.handleEvent(SessionsScreenEvent.Search)
+                onSearch()
                 keyboardController?.hide()
             }),
             placeholder = { Text(text = stringResource(id = R.string.search)) },

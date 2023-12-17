@@ -36,6 +36,9 @@ class SessionsViewModel @Inject constructor(
     private val _alertDialogStateFlow = MutableStateFlow<AlertDialogState>(AlertDialogState.Consumed)
     val alertDialogStateFlow = _alertDialogStateFlow.asStateFlow()
     
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+    
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
         _screenStateFlow.value = SessionsScreenState.Error(SessionsError.NoInternet)
     }
@@ -54,11 +57,23 @@ class SessionsViewModel @Inject constructor(
             is SessionsScreenEvent.Search -> onSearch(_searchFieldValueStateFlow.value)
             is SessionsScreenEvent.SearchInput -> onSearchInput(event.value)
             is SessionsScreenEvent.BackPress -> onBackPress(event.onConfirm)
+            is SessionsScreenEvent.Swipe -> onSwipe()
         }
     }
     
     fun onSnackbarConsumed() {
         _snackbarEventStateFlow.value = SessionsStateEvent.Consumed
+    }
+    
+    private fun onSwipe() {
+        _isRefreshing.value = true
+        
+        when (_screenStateFlow.value) {
+            is SessionsScreenState.ShowSearchedSessions -> onSearch(_searchFieldValueStateFlow.value)
+            else -> getAllSessions()
+        }
+        
+        _isRefreshing.value = false
     }
     
     private fun onBackPress(onConfirm: () -> Unit) {

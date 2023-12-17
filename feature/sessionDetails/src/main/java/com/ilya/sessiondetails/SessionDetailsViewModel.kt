@@ -20,7 +20,7 @@ class SessionDetailsViewModel @Inject constructor(
     private val _screenStateFlow = MutableStateFlow<SessionDetailsScreenState>(SessionDetailsScreenState.Loading)
     val screenStateFlow = _screenStateFlow.asStateFlow()
     
-    private var currentSessionId: String = DEFAULT_USER_ID
+    private var currentSessionId: String = DEFAULT_SESSION_ID
     
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         if (exception is NoSuchElementException) {
@@ -58,7 +58,7 @@ class SessionDetailsViewModel @Inject constructor(
     }
     
     companion object {
-        private const val DEFAULT_USER_ID = ""
+        private const val DEFAULT_SESSION_ID = ""
     }
     
 }

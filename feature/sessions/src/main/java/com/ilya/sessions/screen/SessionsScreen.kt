@@ -22,7 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.ilya.EventEffect
+import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsViewModel
 import com.ilya.sessions.screen.alertDialog.AlertDialogStateHandler
@@ -41,6 +44,8 @@ fun SessionsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarEvent by sessionsViewModel.snackbarEventStateFlow.collectAsState()
     val alertDialogState by sessionsViewModel.alertDialogStateFlow.collectAsState()
+    val isRefreshing by sessionsViewModel.isRefreshing.collectAsState()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
     
     BackHandler {
         sessionsViewModel.handleEvent(SessionsScreenEvent.BackPress(quit))
@@ -51,11 +56,16 @@ fun SessionsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = LocalColorScheme.current.primary
     ) { paddingValues ->
-        Content(
-            sessionsViewModel = sessionsViewModel,
-            onSessionClick = onSessionClick,
-            modifier = Modifier.padding(paddingValues)
-        )
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = { sessionsViewModel.handleEvent(SessionsScreenEvent.Swipe) }
+        ) {
+            Content(
+                sessionsViewModel = sessionsViewModel,
+                onSessionClick = onSessionClick,
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
     }
     
     EventEffect(
@@ -75,31 +85,43 @@ private fun Content(
     onSessionClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val sessionsState by sessionsViewModel.screenStateFlow.collectAsState()
-    
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+        val searchValue by sessionsViewModel.searchValueStateFlow.collectAsState()
         SearchContent(
-            viewModel = sessionsViewModel
+            searchValueState = searchValue,
+            onValueChange = { sessionsViewModel.handleEvent(SessionsScreenEvent.SearchInput(it)) },
+            onSearch = { sessionsViewModel.handleEvent(SessionsScreenEvent.Search) }
         )
+        
         FavouritesContent(
-            sessionsViewModel = sessionsViewModel,
+            favouritesList = sessionsViewModel.getFavouritesList(),
             onSessionClick = onSessionClick
         )
+        
+        val sessionsState by sessionsViewModel.screenStateFlow.collectAsState()
         SessionsContent(
-            sessionsViewModel = sessionsViewModel,
             sessionsState = sessionsState,
-            onSessionClick = onSessionClick
+            onSessionClick = onSessionClick,
+            onFavouriteClick = {
+                sessionsViewModel.handleEvent(SessionsScreenEvent.AddFavourite(it))
+            },
+            onTryAgainClick = {
+                sessionsViewModel.handleEvent(SessionsScreenEvent.Retry)
+            }
         )
     }
 }
 
 @Composable
-private fun FavouritesContent(sessionsViewModel: SessionsViewModel, onSessionClick: (String) -> Unit) {
-    if (sessionsViewModel.getFavouritesList().isNotEmpty()) {
+private fun FavouritesContent(
+    favouritesList: List<Session>,
+    onSessionClick: (String) -> Unit,
+) {
+    if (favouritesList.isNotEmpty()) {
         Text(
             modifier = Modifier.padding(start = 20.dp),
             text = stringResource(id = R.string.favorites_title),
@@ -108,7 +130,7 @@ private fun FavouritesContent(sessionsViewModel: SessionsViewModel, onSessionCli
             color = LocalColorScheme.current.primaryTextColor
         )
         Favourites(
-            favouriteList = sessionsViewModel.getFavouritesList(),
+            favouriteList = favouritesList,
             onSessionClick = onSessionClick
         )
     }
@@ -116,9 +138,10 @@ private fun FavouritesContent(sessionsViewModel: SessionsViewModel, onSessionCli
 
 @Composable
 private fun SessionsContent(
-    sessionsViewModel: SessionsViewModel,
     sessionsState: SessionsScreenState,
     onSessionClick: (String) -> Unit,
+    onFavouriteClick: (Session) -> Unit,
+    onTryAgainClick: () -> Unit,
 ) {
     Text(
         modifier = Modifier.padding(start = 20.dp),
@@ -127,15 +150,5 @@ private fun SessionsContent(
         fontWeight = FontWeight.Bold,
         color = LocalColorScheme.current.primaryTextColor
     )
-    
-    Sessions(
-        sessionsState = sessionsState,
-        onFavouriteClick = {
-            sessionsViewModel.handleEvent(SessionsScreenEvent.AddFavourite(it))
-        },
-        onSessionClick = onSessionClick,
-        onTryAgainClick = {
-            sessionsViewModel.handleEvent(SessionsScreenEvent.Retry)
-        }
-    )
+    Sessions(sessionsState, onFavouriteClick, onSessionClick, onTryAgainClick)
 }

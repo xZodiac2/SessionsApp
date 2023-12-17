@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
                         route = Destination.SessionDetailsScreen.withArgumentNames(KEY_SESSION_ID),
                         arguments = listOf(navArgument(KEY_SESSION_ID) { type = NavType.StringType })
                     ) { backStackEntry ->
-                        SessionDetailsScreen(sessionId = backStackEntry.arguments?.getString(KEY_SESSION_ID)
-                            ?: DEFAULT_SESSION_ID,
+                        SessionDetailsScreen(
+                            sessionId = backStackEntry.arguments?.getString(KEY_SESSION_ID) ?: DEFAULT_SESSION_ID,
                             onBackClick = {
                                 navController.navigate(Destination.MainScreen.route) {
                                     launchSingleTop = true
