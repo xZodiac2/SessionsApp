@@ -7,9 +7,9 @@ import com.ilya.core.TextReference
 import com.ilya.data.SessionsRepository
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.models.GroupedSessions
-import com.ilya.sessions.screen.AlertDialogState
 import com.ilya.sessions.screen.SessionsScreenEvent
 import com.ilya.sessions.screen.SessionsScreenState
+import com.ilya.sessions.screen.alertDialog.AlertDialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ class SessionsViewModel @Inject constructor(
             is SessionsScreenEvent.AddFavourite -> onAddFavourite(event.session)
             is SessionsScreenEvent.Search -> onSearch(_searchFieldValueStateFlow.value)
             is SessionsScreenEvent.SearchInput -> onSearchInput(event.value)
-            is SessionsScreenEvent.BackPress -> onBackPress()
+            is SessionsScreenEvent.BackPress -> onBackPress(event.onConfirm)
         }
     }
     
@@ -61,18 +61,15 @@ class SessionsViewModel @Inject constructor(
         _snackbarEventStateFlow.value = SessionsStateEvent.Consumed
     }
     
-    fun onAlertDialogConsumed() {
-        _alertDialogStateFlow.value = AlertDialogState.Consumed
-    }
-    
-    private fun onBackPress() {
-        val title = TextReference.StringRef(R.string.quit_alert_title)
-        val confirmButtonText = TextReference.StringRef(R.string.ok)
-        val dismissButtonText = TextReference.StringRef(R.string.dismiss)
+    private fun onBackPress(onConfirm: () -> Unit) {
         _alertDialogStateFlow.value = AlertDialogState.Triggered(
-            title = title,
-            confirmButtonText = confirmButtonText,
-            dismissButtonText = dismissButtonText
+            onConfirm = {
+                onConfirm()
+                _alertDialogStateFlow.value = AlertDialogState.Consumed
+            },
+            onDismiss = {
+                _alertDialogStateFlow.value = AlertDialogState.Consumed
+            }
         )
     }
     

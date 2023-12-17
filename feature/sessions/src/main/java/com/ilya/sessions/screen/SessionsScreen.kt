@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -27,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ilya.EventEffect
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsViewModel
+import com.ilya.sessions.screen.alertDialog.AlertDialogStateHandler
 import com.ilya.sessions.screen.favourites.Favourites
 import com.ilya.sessions.screen.search.SearchContent
 import com.ilya.sessions.screen.sessions.Sessions
@@ -44,8 +43,9 @@ fun SessionsScreen(
     val alertDialogState by sessionsViewModel.alertDialogStateFlow.collectAsState()
     
     BackHandler {
-        sessionsViewModel.handleEvent(SessionsScreenEvent.BackPress)
+        sessionsViewModel.handleEvent(SessionsScreenEvent.BackPress(quit))
     }
+    AlertDialogStateHandler(alertDialogState)
     
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -56,13 +56,6 @@ fun SessionsScreen(
             onSessionClick = onSessionClick,
             modifier = Modifier.padding(paddingValues)
         )
-        if (alertDialogState is AlertDialogState.Triggered) {
-            QuitAlertDialog(
-                sessionsViewModel,
-                alertDialogState as AlertDialogState.Triggered,
-                quit
-            )
-        }
     }
     
     EventEffect(
@@ -144,36 +137,5 @@ private fun SessionsContent(
         onTryAgainClick = {
             sessionsViewModel.handleEvent(SessionsScreenEvent.Retry)
         }
-    )
-}
-
-@Composable
-private fun QuitAlertDialog(
-    sessionsViewModel: SessionsViewModel,
-    state: AlertDialogState.Triggered,
-    quit: () -> Unit,
-) {
-    AlertDialog(
-        title = {
-            Text(text = state.title.resolve())
-        },
-        confirmButton = {
-            Button(onClick = {
-                quit()
-                sessionsViewModel.onAlertDialogConsumed()
-            }) {
-                Text(text = state.confirmButtonText.resolve())
-            }
-        },
-        dismissButton = {
-            Button(onClick = { sessionsViewModel.onAlertDialogConsumed() }) {
-                Text(text = state.dismissButtonText.resolve())
-            }
-        },
-        onDismissRequest = {
-            sessionsViewModel.onAlertDialogConsumed()
-        },
-        containerColor = LocalColorScheme.current.cardContainerColor,
-        titleContentColor = LocalColorScheme.current.primaryTextColor
     )
 }
