@@ -6,6 +6,6 @@ import androidx.compose.runtime.Composable
 fun AlertDialogStateHandler(state: AlertDialogState) {
     when (state) {
         is AlertDialogState.Consumed -> Unit
-        is AlertDialogState.Triggered -> ShowAlertDialog(state)
+        is AlertDialogState.Triggered -> ShowQuitAlertDialog(state)
     }
 }

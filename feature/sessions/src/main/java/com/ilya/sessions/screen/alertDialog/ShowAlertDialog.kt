@@ -9,7 +9,7 @@ import com.ilya.sessions.R
 import com.ilya.theme.LocalColorScheme
 
 @Composable
-fun ShowAlertDialog(state: AlertDialogState.Triggered) {
+fun ShowQuitAlertDialog(state: AlertDialogState.Triggered) {
     AlertDialog(
         title = {
             Text(text = stringResource(id = R.string.quit_alert_title))
