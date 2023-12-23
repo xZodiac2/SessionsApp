@@ -1,7 +1,7 @@
 package com.ilya.sessions.screen.alertDialog
 
 sealed interface AlertDialogState {
-    data class QuitAlertDialogRequest(
+    data class SubmitExitRequest(
         val onConfirm: () -> Unit,
         val onDismiss: () -> Unit,
     ) : AlertDialogState

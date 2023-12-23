@@ -74,7 +74,7 @@ class SessionsViewModel @Inject constructor(
     }
     
     private fun onBackPress(onConfirm: () -> Unit) {
-        _alertDialogStateFlow.value = AlertDialogState.QuitAlertDialogRequest(
+        _alertDialogStateFlow.value = AlertDialogState.SubmitExitRequest(
             onConfirm = {
                 onConfirm()
                 _alertDialogStateFlow.value = AlertDialogState.Consumed
