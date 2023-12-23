@@ -1,6 +1,5 @@
 package com.ilya.sessions
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,12 +31,7 @@ class MainActivity : ComponentActivity() {
                                     Destination.SessionDetailsScreen.withArguments(it)
                                 )
                             },
-                            quit = {
-                                val startMain = Intent(Intent.ACTION_MAIN)
-                                startMain.addCategory(Intent.CATEGORY_HOME)
-                                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                startActivity(startMain)
-                            }
+                            quit = { finish() }
                         )
                     }
                     composable(

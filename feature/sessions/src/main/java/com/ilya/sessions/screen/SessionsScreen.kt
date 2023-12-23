@@ -90,11 +90,8 @@ private fun Content(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        val searchValue by sessionsViewModel.searchValueStateFlow.collectAsState()
         SearchContent(
-            searchValueState = searchValue,
-            onValueChange = { sessionsViewModel.handleEvent(SessionsScreenEvent.SearchInput(it)) },
-            onSearch = { sessionsViewModel.handleEvent(SessionsScreenEvent.Search) }
+            onSearch = { sessionsViewModel.handleEvent(SessionsScreenEvent.Search(it)) }
         )
         
         FavouritesContent(

@@ -16,6 +16,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,17 +28,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.ilya.sessions.R
-import com.ilya.sessions.screen.SessionsScreenEvent
 import com.ilya.theme.LocalColorScheme
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-fun SearchContent(
-    searchValueState: String,
-    onValueChange: (String) -> Unit,
-    onSearch: () -> Unit,
-) {
+fun SearchContent(onSearch: (String) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    var inputValueState by remember { mutableStateOf("") }
     
     Box(
         modifier = Modifier
@@ -46,15 +46,15 @@ fun SearchContent(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth(),
-            value = searchValueState,
-            onValueChange = { onValueChange(it) },
+            value = inputValueState,
+            onValueChange = { inputValueState = it },
             leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = null) },
             trailingIcon = {
-                if (searchValueState.isNotBlank()) {
+                if (inputValueState.isNotBlank()) {
                     IconButton(
                         onClick = {
-                            onValueChange("")
-                            onSearch()
+                            inputValueState = ""
+                            onSearch(inputValueState)
                         }
                     ) {
                         Icon(imageVector = Icons.Outlined.Close, contentDescription = null)
@@ -63,7 +63,7 @@ fun SearchContent(
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                onSearch()
+                onSearch(inputValueState)
                 keyboardController?.hide()
             }),
             placeholder = { Text(text = stringResource(id = R.string.search)) },

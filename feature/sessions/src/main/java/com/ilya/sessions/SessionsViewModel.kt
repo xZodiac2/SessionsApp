@@ -30,9 +30,6 @@ class SessionsViewModel @Inject constructor(
     private val _snackbarEventStateFlow = MutableStateFlow<SessionsStateEvent>(SessionsStateEvent.Consumed)
     val snackbarEventStateFlow = _snackbarEventStateFlow.asStateFlow()
     
-    private val _searchFieldValueStateFlow = MutableStateFlow("")
-    val searchValueStateFlow = _searchFieldValueStateFlow.asStateFlow()
-    
     private val _alertDialogStateFlow = MutableStateFlow<AlertDialogState>(AlertDialogState.Consumed)
     val alertDialogStateFlow = _alertDialogStateFlow.asStateFlow()
     
@@ -44,6 +41,7 @@ class SessionsViewModel @Inject constructor(
     }
     
     private val sessionsList = mutableListOf<Session>()
+    private var searchInputValue = ""
     
     fun getFavouritesList(): List<Session> {
         return sessionsList.filter { it.isFavourite }
@@ -54,8 +52,7 @@ class SessionsViewModel @Inject constructor(
             is SessionsScreenEvent.Start -> onStart()
             is SessionsScreenEvent.Retry -> onRetry()
             is SessionsScreenEvent.AddFavourite -> onAddFavourite(event.session)
-            is SessionsScreenEvent.Search -> onSearch(_searchFieldValueStateFlow.value)
-            is SessionsScreenEvent.SearchInput -> onSearchInput(event.value)
+            is SessionsScreenEvent.Search -> onSearch(event.value)
             is SessionsScreenEvent.BackPress -> onBackPress(event.onConfirm)
             is SessionsScreenEvent.Swipe -> onSwipe()
         }
@@ -69,7 +66,7 @@ class SessionsViewModel @Inject constructor(
         _isRefreshing.value = true
         
         when (_screenStateFlow.value) {
-            is SessionsScreenState.ShowSearchedSessions -> onSearch(_searchFieldValueStateFlow.value)
+            is SessionsScreenState.ShowSearchedSessions -> onSearch(searchInputValue)
             else -> getAllSessions()
         }
         
@@ -77,7 +74,7 @@ class SessionsViewModel @Inject constructor(
     }
     
     private fun onBackPress(onConfirm: () -> Unit) {
-        _alertDialogStateFlow.value = AlertDialogState.Triggered(
+        _alertDialogStateFlow.value = AlertDialogState.QuitAlertDialogRequest(
             onConfirm = {
                 onConfirm()
                 _alertDialogStateFlow.value = AlertDialogState.Consumed
@@ -135,12 +132,9 @@ class SessionsViewModel @Inject constructor(
         return list.indexOf(session)
     }
     
-    private fun onSearchInput(value: String) {
-        _searchFieldValueStateFlow.value = value
-    }
-    
     private fun onSearch(searchBy: String) {
         _screenStateFlow.value = SessionsScreenState.Loading
+        searchInputValue = searchBy
         
         if (searchBy.isBlank() || searchBy.isBlank() && _screenStateFlow.value is SessionsScreenState.ShowSearchedSessions) {
             _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
