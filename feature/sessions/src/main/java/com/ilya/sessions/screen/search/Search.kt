@@ -34,10 +34,10 @@ import com.ilya.theme.LocalColorScheme
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 fun SearchContent(
     onSearch: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var inputValueState by remember { mutableStateOf("") }
+    var inputStateValue by remember { mutableStateOf("") }
     
     Box(
         modifier = modifier
@@ -49,15 +49,15 @@ fun SearchContent(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth(),
-            value = inputValueState,
-            onValueChange = { inputValueState = it },
+            value = inputStateValue,
+            onValueChange = { inputStateValue = it },
             leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = null) },
             trailingIcon = {
-                if (inputValueState.isNotBlank()) {
+                if (inputStateValue.isNotBlank()) {
                     IconButton(
                         onClick = {
-                            inputValueState = ""
-                            onSearch(inputValueState)
+                            inputStateValue = ""
+                            onSearch(inputStateValue)
                         }
                     ) {
                         Icon(imageVector = Icons.Outlined.Close, contentDescription = null)
@@ -66,7 +66,7 @@ fun SearchContent(
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                onSearch(inputValueState)
+                onSearch(inputStateValue)
                 keyboardController?.hide()
             }),
             placeholder = { Text(text = stringResource(id = R.string.search)) },
