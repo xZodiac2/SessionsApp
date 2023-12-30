@@ -117,6 +117,7 @@ private fun Content(
 private fun FavouritesContent(
     favouritesList: List<Session>,
     onSessionClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     if (favouritesList.isNotEmpty()) {
         Text(
@@ -128,7 +129,8 @@ private fun FavouritesContent(
         )
         Favourites(
             favouriteList = favouritesList,
-            onSessionClick = onSessionClick
+            onSessionClick = onSessionClick,
+            modifier = modifier
         )
     }
 }

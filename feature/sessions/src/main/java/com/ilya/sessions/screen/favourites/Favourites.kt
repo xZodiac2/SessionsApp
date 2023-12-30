@@ -22,9 +22,13 @@ import com.ilya.data.retrofit.Session
 import com.ilya.theme.LocalColorScheme
 
 @Composable
-fun Favourites(favouriteList: List<Session>, onSessionClick: (String) -> Unit) {
+fun Favourites(
+    favouriteList: List<Session>,
+    onSessionClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyRow(
-        modifier = Modifier.padding(vertical = 20.dp),
+        modifier = modifier.padding(vertical = 20.dp),
         contentPadding = PaddingValues(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {

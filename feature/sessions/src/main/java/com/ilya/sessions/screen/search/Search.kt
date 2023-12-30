@@ -32,12 +32,15 @@ import com.ilya.theme.LocalColorScheme
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-fun SearchContent(onSearch: (String) -> Unit) {
+fun SearchContent(
+    onSearch: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var inputValueState by remember { mutableStateOf("") }
     
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(120.dp),
         contentAlignment = Alignment.Center
