@@ -58,7 +58,7 @@ class SessionDetailsViewModel @Inject constructor(
     }
     
     companion object {
-        private const val DEFAULT_SESSION_ID = ""
+        const val DEFAULT_SESSION_ID = ""
     }
     
 }

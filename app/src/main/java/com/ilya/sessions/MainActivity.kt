@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ilya.sessiondetails.SessionDetailsViewModel.Companion.DEFAULT_SESSION_ID
 import com.ilya.sessiondetails.screen.SessionDetailsScreen
 import com.ilya.sessions.navigation.Destination
 import com.ilya.sessions.screen.SessionsScreen
@@ -55,7 +56,6 @@ class MainActivity : ComponentActivity() {
     
     private companion object {
         const val KEY_SESSION_ID = "sessionId"
-        const val DEFAULT_SESSION_ID = ""
     }
     
 }
