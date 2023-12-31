@@ -87,7 +87,7 @@ private fun NoInternetError(onTryAgainClick: () -> Unit, onBackClick: () -> Unit
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(id = R.string.error_no_internet),
+            text = stringResource(id = R.string.error_no_internet_session_info),
             color = LocalColorScheme.current.primaryTextColor,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 40.dp)
