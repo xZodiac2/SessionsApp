@@ -193,8 +193,8 @@ private fun ShowSessionsState(
                 fontSize = LocalTypography.current.tinyFontSize,
                 modifier = Modifier.padding(top = 16.dp)
             )
-            it.sessions.forEach {
-                Session(it, onFavouriteClick, onSessionClick)
+            it.sessions.forEach { session ->
+                Session(session, onFavouriteClick, onSessionClick)
             }
         }
     }
