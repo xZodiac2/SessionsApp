@@ -49,12 +49,12 @@ class SessionsViewModel @Inject constructor(
     
     fun handleEvent(event: SessionsScreenEvent) {
         when (event) {
-            is SessionsScreenEvent.Start -> onStart()
-            is SessionsScreenEvent.Retry -> onRetry()
+            SessionsScreenEvent.Start -> onStart()
+            SessionsScreenEvent.Retry -> onRetry()
+            SessionsScreenEvent.Swipe -> onSwipe()
             is SessionsScreenEvent.AddFavourite -> onAddFavourite(event.session)
             is SessionsScreenEvent.Search -> onSearch(event.value)
             is SessionsScreenEvent.BackPress -> onBackPress(event.onConfirm)
-            is SessionsScreenEvent.Swipe -> onSwipe()
         }
     }
     

@@ -33,7 +33,7 @@ class SessionDetailsViewModel @Inject constructor(
     fun handleEvent(event: SessionDetailsScreenEvent) {
         when (event) {
             is SessionDetailsScreenEvent.Start -> onStart(event.sessionId)
-            is SessionDetailsScreenEvent.Retry -> onRetry()
+            SessionDetailsScreenEvent.Retry -> onRetry()
         }
     }
     

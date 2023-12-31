@@ -45,7 +45,7 @@ fun SessionDetailsScreen(
     val state = detailsViewModel.screenStateFlow.collectAsState()
     
     when (val stateValue = state.value) {
-        is SessionDetailsScreenState.Loading -> LoadingState()
+        SessionDetailsScreenState.Loading -> LoadingState()
         is SessionDetailsScreenState.Error -> ErrorState(
             error = stateValue.error,
             onTryAgainClick = {

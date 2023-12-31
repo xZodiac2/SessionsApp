@@ -47,7 +47,7 @@ fun Sessions(
     onTryAgainClick: () -> Unit,
 ) {
     when (sessionsState) {
-        is SessionsScreenState.Loading -> LoadingState()
+        SessionsScreenState.Loading -> LoadingState()
         is SessionsScreenState.Error -> ErrorState(sessionsState.error, onTryAgainClick)
         is SessionsScreenState.ShowSessions -> ShowSessionsState(
             sessionsState.sessions,
