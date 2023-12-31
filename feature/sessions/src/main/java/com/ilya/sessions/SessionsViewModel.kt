@@ -132,7 +132,7 @@ class SessionsViewModel @Inject constructor(
         _screenStateFlow.value = SessionsScreenState.Loading
         searchInputValue = searchBy
         
-        if (searchBy.isBlank() || searchBy.isBlank() && _screenStateFlow.value is SessionsScreenState.ShowSearchedSessions) {
+        if (searchBy.isBlank()) {
             _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
             return
         }
