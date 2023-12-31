@@ -98,20 +98,20 @@ private fun Session(
                 Text(
                     text = session.speaker,
                     modifier = Modifier.width(200.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = LocalColorScheme.current.primaryTextColor
+                    fontWeight = FontWeight.W800,
+                    color = LocalColorScheme.current.primaryTextColor,
                 )
                 Text(
                     text = session.timeInterval,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalColorScheme.current.primaryTextColor
+                    fontWeight = FontWeight.W800,
+                    color = LocalColorScheme.current.primaryTextColor,
                 )
                 Text(
                     text = session.description,
                     modifier = Modifier.width(200.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = LocalColorScheme.current.primaryTextColor
+                    color = LocalColorScheme.current.secondaryTextColor
                 )
             }
             

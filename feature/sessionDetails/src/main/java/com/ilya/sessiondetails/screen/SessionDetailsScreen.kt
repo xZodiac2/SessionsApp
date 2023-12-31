@@ -170,14 +170,14 @@ private fun ShowDetailsState(session: Session) {
                 Text(
                     text = "${session.date}, ${session.timeInterval}",
                     fontSize = LocalTypography.current.lowFontSize,
-                    color = LocalColorScheme.current.primaryTextColor
+                    color = LocalColorScheme.current.secondaryTextColor
                 )
             }
             Text(
                 modifier = Modifier.padding(top = 10.dp),
                 text = session.description,
                 fontSize = LocalTypography.current.defaultFontSize,
-                color = LocalColorScheme.current.primaryTextColor
+                color = LocalColorScheme.current.secondaryTextColor
             )
         }
     }
