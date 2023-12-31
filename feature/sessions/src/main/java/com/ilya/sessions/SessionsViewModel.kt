@@ -104,7 +104,7 @@ class SessionsViewModel @Inject constructor(
         
         when (val stateValue = _screenStateFlow.value) {
             is SessionsScreenState.ShowSessions -> {
-                val sessionIndex = getFavouriteSessionIndex(session)
+                val sessionIndex = sessionsList.indexOf(session)
                 sessionsList[sessionIndex] = session.copy(isFavourite = !session.isFavourite)
                 _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
             }
@@ -120,16 +120,12 @@ class SessionsViewModel @Inject constructor(
                     }
                     GroupedSessions(groupedSessions.date, sessions)
                 }
-                sessionsList[getFavouriteSessionIndex(session)] = session.copy(isFavourite = !session.isFavourite)
+                sessionsList[sessionsList.indexOf(session)] = session.copy(isFavourite = !session.isFavourite)
                 _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(newState)
             }
             
             else -> Unit
         }
-    }
-    
-    private fun getFavouriteSessionIndex(session: Session, list: List<Session> = sessionsList): Int {
-        return list.indexOf(session)
     }
     
     private fun onSearch(searchBy: String) {
