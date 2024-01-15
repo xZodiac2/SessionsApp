@@ -148,7 +148,7 @@ private fun ShowDetailsState(session: Session) {
             Text(
                 modifier = Modifier.padding(vertical = 16.dp),
                 text = session.speaker,
-                fontSize = LocalTypography.current.largeFontSize,
+                fontSize = LocalTypography.current.mediumFontSize,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = LocalColorScheme.current.primaryTextColor
@@ -169,14 +169,14 @@ private fun ShowDetailsState(session: Session) {
                 )
                 Text(
                     text = "${session.date}, ${session.timeInterval}",
-                    fontSize = LocalTypography.current.lowFontSize,
+                    fontSize = LocalTypography.current.tinyFontSize,
                     color = LocalColorScheme.current.secondaryTextColor
                 )
             }
             Text(
                 modifier = Modifier.padding(top = 10.dp),
                 text = session.description,
-                fontSize = LocalTypography.current.defaultFontSize,
+                fontSize = LocalTypography.current.lowFontSize,
                 color = LocalColorScheme.current.secondaryTextColor
             )
         }
