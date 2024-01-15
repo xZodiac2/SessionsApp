@@ -3,12 +3,9 @@ package com.ilya.sessions.screen.favourites
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -25,17 +22,9 @@ import com.ilya.theme.LocalColorScheme
 fun Favourites(
     favouriteList: List<Session>,
     onSessionClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    LazyRow(
-        modifier = modifier.padding(vertical = 20.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(favouriteList) {
-            Favourite(it, onSessionClick)
-        }
-    }
+
 }
 
 @Composable

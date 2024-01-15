@@ -1,9 +1,13 @@
 package com.ilya.sessions.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +33,7 @@ import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsViewModel
 import com.ilya.sessions.screen.alertDialog.AlertDialogStateHandler
-import com.ilya.sessions.screen.favourites.Favourites
+import com.ilya.sessions.screen.favourites.Favourite
 import com.ilya.sessions.screen.search.SearchContent
 import com.ilya.sessions.screen.sessions.Sessions
 import com.ilya.theme.LocalColorScheme
@@ -127,11 +131,15 @@ private fun FavouritesContent(
             fontWeight = FontWeight.Bold,
             color = LocalColorScheme.current.primaryTextColor
         )
-        Favourites(
-            favouriteList = favouritesList,
-            onSessionClick = onSessionClick,
-            modifier = modifier
-        )
+        LazyRow(
+            modifier = modifier.padding(vertical = 20.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(favouritesList) {
+                Favourite(it, onSessionClick)
+            }
+        }
     }
 }
 
