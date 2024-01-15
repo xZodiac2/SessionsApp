@@ -6,7 +6,8 @@ import com.ilya.SessionsStateEvent
 import com.ilya.core.TextReference
 import com.ilya.data.SessionsRepository
 import com.ilya.data.retrofit.Session
-import com.ilya.sessions.models.GroupedSessions
+import com.ilya.sessions.models.group
+import com.ilya.sessions.models.ungroup
 import com.ilya.sessions.screen.SessionsScreenEvent
 import com.ilya.sessions.screen.SessionsScreenState
 import com.ilya.sessions.screen.alertDialog.AlertDialogState
@@ -104,23 +105,15 @@ class SessionsViewModel @Inject constructor(
         
         when (val stateValue = _screenStateFlow.value) {
             is SessionsScreenState.ShowSessions -> {
-                val sessionIndex = sessionsList.indexOf(session)
-                sessionsList[sessionIndex] = session.copy(isFavourite = !session.isFavourite)
-                _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
+                sessionsList.toggleFavourite(session)
+                _screenStateFlow.value = SessionsScreenState.ShowSessions(sessionsList.group())
             }
             
             is SessionsScreenState.ShowSearchedSessions -> {
-                val newState = stateValue.sessions.map { groupedSessions ->
-                    if (groupedSessions.sessions.contains(session)) {
-                        val sessionsList = groupedSessions.sessions.toMutableList()
-                        sessionsList[sessionsList.indexOf(session)] = session.copy(isFavourite = !session.isFavourite)
-                        groupedSessions.copy(sessions = sessionsList)
-                    } else {
-                        groupedSessions
-                    }
-                }
-                sessionsList[sessionsList.indexOf(session)] = session.copy(isFavourite = !session.isFavourite)
-                _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(newState)
+                sessionsList.toggleFavourite(session)
+                val searchedSessions = stateValue.groupedSessions.ungroup().toMutableList()
+                searchedSessions.toggleFavourite(session)
+                _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(searchedSessions.group())
             }
             
             else -> Unit
@@ -132,25 +125,20 @@ class SessionsViewModel @Inject constructor(
         searchInputValue = searchBy
         
         if (searchBy.isBlank()) {
-            _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
+            _screenStateFlow.value = SessionsScreenState.ShowSessions(sessionsList.group())
             return
         }
         
         viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
+            val foundSessions = repository.searchSessions(searchBy.trim())
+                .toMutableList()
+
             val favouriteIds = getFavouritesList().map { it.id }
-            
-            val sessions = repository
-                .searchSessions(searchBy.trim())
-                .map { session ->
-                    
-                    if (favouriteIds.contains(session.id)) {
-                        session.copy(isFavourite = true)
-                    } else {
-                        session
-                    }
-                }
-            
-            _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(grouped(sessions))
+            favouriteIds.forEach { favouriteId ->
+                foundSessions.setIsFavourite(favouriteId, true)
+            }
+
+            _screenStateFlow.value = SessionsScreenState.ShowSearchedSessions(foundSessions.group())
         }
     }
     
@@ -161,7 +149,7 @@ class SessionsViewModel @Inject constructor(
             val sessions = repository.getAllSessions()
             sessionsList.clear()
             sessionsList.addAll(sessions)
-            _screenStateFlow.value = SessionsScreenState.ShowSessions(grouped(sessionsList))
+            _screenStateFlow.value = SessionsScreenState.ShowSessions(sessionsList.group())
         }
     }
     
@@ -169,19 +157,24 @@ class SessionsViewModel @Inject constructor(
     private fun isFavouritesFilled(): Boolean {
         return getFavouritesList().size >= FAVOURITES_LIMIT
     }
-    
-    private fun grouped(sessions: List<Session>): List<GroupedSessions> {
-        val grouped = mutableMapOf<String, List<Session>>()
-        
-        sessions.forEach {
-            val group = grouped[it.date]?.toMutableList() ?: mutableListOf()
-            group += it
-            grouped[it.date] = group
+
+    private fun MutableList<Session>.toggleFavourite(session: Session): MutableList<Session> {
+        return setIsFavourite(session, !session.isFavourite)
+    }
+
+    private fun MutableList<Session>.setIsFavourite(session: Session, isFavourite: Boolean): MutableList<Session> {
+        return setIsFavourite(session.id, isFavourite)
+    }
+
+    private fun MutableList<Session>.setIsFavourite(sessionId: String, isFavourite: Boolean): MutableList<Session> {
+        forEachIndexed { sessionIndex, session ->
+            if (session.id == sessionId) {
+                this[sessionIndex] = session.copy(isFavourite = isFavourite)
+                return this
+            }
         }
-        
-        return grouped.map { (key, value) ->
-            GroupedSessions(key, value)
-        }
+
+        return this
     }
     
     companion object {

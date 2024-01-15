@@ -50,13 +50,13 @@ fun Sessions(
         SessionsScreenState.Loading -> LoadingState()
         is SessionsScreenState.Error -> ErrorState(sessionsState.error, onTryAgainClick)
         is SessionsScreenState.ShowSessions -> ShowSessionsState(
-            sessionsState.sessions,
+            sessionsState.groupedSessions,
             onFavouriteClick,
             onSessionClick
         )
         
         is SessionsScreenState.ShowSearchedSessions -> ShowSessionsState(
-            sessionsState.sessions,
+            sessionsState.groupedSessions,
             onFavouriteClick,
             onSessionClick
         )
