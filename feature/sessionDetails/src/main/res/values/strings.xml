@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_no_internet_session_info">No able to get sessions info. Please check your internet connection and try again</string>
+    <string name="error_no_id">Something went wrong</string>
+    <string name="back">Back</string>
+    <string name="try_again">Try again</string>
+</resources>

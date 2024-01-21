@@ -6,12 +6,19 @@ import androidx.compose.ui.graphics.Color
 data class ColorScheme(
     val primary: Color = LightColorScheme.primary,
     val secondary: Color = LightColorScheme.secondary,
-    val cardContainerColor: Color = Color.White,
+    val cardContainerColor: Color = LightColorScheme.cardContainerColor,
     val background: Color = LightColorScheme.background,
     val filledHeartIconTint: Color = LightColorScheme.filledHeartIconTint,
     val outlinedHeartIconTint: Color = LightColorScheme.outlinedHeartIconTint,
     val primaryTextColor: Color = LightColorScheme.primaryTextColor,
     val secondaryTextColor: Color = LightColorScheme.secondaryTextColor,
+    val containerTextFieldColor: Color = LightColorScheme.containerTextFieldColor,
+    val valueTextFieldColor: Color = LightColorScheme.valueTextFieldColor,
+    val trailingIconTextFieldColor: Color = LightColorScheme.trailingIconTextFieldColor,
+    val leadingIconTextFieldColor: Color = LightColorScheme.leadingIconTextFieldColor,
+    val focusedIndicatorTextFieldColor: Color = LightColorScheme.focusedIndicatorTextFieldColor,
+    val unfocusedIndicatorTextFieldColor: Color = LightColorScheme.unfocusedIndicatorTextFieldColor,
+    val placeholderTextFieldColor: Color = LightColorScheme.placeholderTextFieldColor,
 )
 
 object LightColorScheme {
@@ -23,6 +30,13 @@ object LightColorScheme {
     val outlinedHeartIconTint = Color.Black
     val primaryTextColor = Color.Black
     val secondaryTextColor = Color(126, 126, 126)
+    val containerTextFieldColor = Color.White
+    val valueTextFieldColor = Color.Black
+    val trailingIconTextFieldColor = Color.Black
+    val leadingIconTextFieldColor = Color.Black
+    val focusedIndicatorTextFieldColor = Color.Black
+    val unfocusedIndicatorTextFieldColor = Color.Gray
+    val placeholderTextFieldColor = Color.Black
 }
 
 object DarkColorScheme {
@@ -34,6 +48,13 @@ object DarkColorScheme {
     val outlinedHeartIconTint = Color.White
     val primaryTextColor = Color.White
     val secondaryTextColor = Color(170, 170, 170, 255)
+    val containerTextFieldColor = cardContainerColor
+    val valueTextFieldColor = Color.White
+    val trailingIconTextFieldColor = Color.White
+    val leadingIconTextFieldColor = Color.White
+    val focusedIndicatorTextFieldColor = Color.White
+    val unfocusedIndicatorTextFieldColor = Color.DarkGray
+    val placeholderTextFieldColor = Color.LightGray
 }
 
 

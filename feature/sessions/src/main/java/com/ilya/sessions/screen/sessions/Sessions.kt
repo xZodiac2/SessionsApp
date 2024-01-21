@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -21,92 +19,63 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ilya.data.retrofit.Session
 import com.ilya.sessions.R
 import com.ilya.sessions.SessionsError
-import com.ilya.sessions.SessionsState
+import com.ilya.sessions.models.GroupedSessions
+import com.ilya.sessions.screen.SessionsScreenState
 import com.ilya.theme.LocalColorScheme
+import com.ilya.theme.LocalTypography
 
-
-fun LazyListScope.sessions(
-    sessionsState: SessionsState,
-    onUnsuccessfulAdd: () -> Unit,
+@Composable
+fun Sessions(
+    sessionsState: SessionsScreenState,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (String) -> Unit,
     onTryAgainClick: () -> Unit,
-    onSessionClick: (Session) -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
 ) {
     when (sessionsState) {
-        is SessionsState.Loading -> loadingState()
-        is SessionsState.Error -> errorState(sessionsState.error, onTryAgainClick)
-        is SessionsState.ShowSessions -> showSessionsState(
-            sessionsState.sessions, onUnsuccessfulAdd, onSessionClick, onFavouriteClick
+        SessionsScreenState.Loading -> LoadingState()
+        is SessionsScreenState.Error -> ErrorState(sessionsState.error, onTryAgainClick)
+        is SessionsScreenState.ShowSessions -> ShowSessionsState(
+            sessionsState.groupedSessions,
+            onFavouriteClick,
+            onSessionClick
         )
-    }
-}
-
-private fun LazyListScope.showSessionsState(
-    sessions: List<Session>,
-    onUnsuccessfulAdd: () -> Unit,
-    onSessionClick: (Session) -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
-) {
-    var currentSessionDate = sessions.first().date
-    val groupedByDateSessions = mutableListOf<List<Session>>()
-    
-    var matchingDateSessions = mutableListOf<Session>()
-    sessions.forEach {
-        if (currentSessionDate == it.date) {
-            matchingDateSessions += it
-        } else {
-            groupedByDateSessions += matchingDateSessions
-            matchingDateSessions = mutableListOf()
-            matchingDateSessions += it
-        }
-        currentSessionDate = it.date
-    }
-    
-    items(groupedByDateSessions) {
-        Column {
-            Text(
-                text = it.first().date,
-                modifier = Modifier.padding(top = 14.dp),
-                color = LocalColorScheme.current.secondaryTextColor
-            )
-            it.forEach { session ->
-                Session(session, onUnsuccessfulAdd, onFavouriteClick, onSessionClick)
-            }
-        }
+        
+        is SessionsScreenState.ShowSearchedSessions -> ShowSessionsState(
+            sessionsState.groupedSessions,
+            onFavouriteClick,
+            onSessionClick
+        )
     }
 }
 
 @Composable
 private fun Session(
     session: Session,
-    onUnsuccessfulAdd: () -> Unit,
-    onFavouriteClick: (Session) -> Boolean,
-    onSessionClick: (Session) -> Unit,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (String) -> Unit,
 ) {
     Card(
-        elevation = CardDefaults.cardElevation(10.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = LocalColorScheme.current.cardContainerColor),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onSessionClick(session) }
+            .padding(vertical = 6.dp)
+            .clickable { onSessionClick(session.id) }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -123,68 +92,110 @@ private fun Session(
                     .clip(CircleShape),
                 contentScale = ContentScale.FillBounds
             )
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
                 Text(
                     text = session.speaker,
                     modifier = Modifier.width(200.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = LocalColorScheme.current.primaryTextColor
+                    fontWeight = FontWeight.W800,
+                    color = LocalColorScheme.current.primaryTextColor,
                 )
                 Text(
                     text = session.timeInterval,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalColorScheme.current.primaryTextColor
+                    fontWeight = FontWeight.W800,
+                    color = LocalColorScheme.current.primaryTextColor,
                 )
                 Text(
                     text = session.description,
                     modifier = Modifier.width(200.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = LocalColorScheme.current.primaryTextColor
+                    color = LocalColorScheme.current.secondaryTextColor
                 )
             }
             
-            var isFavourite by rememberSaveable { mutableStateOf(session.isFavourite) }
-            val iconId = if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
-            
-            IconButton(onClick = {
-                isFavourite = !isFavourite
-                val isUnsuccessful = !onFavouriteClick(session.copy(isFavourite = isFavourite))
-                if (isUnsuccessful) {
-                    isFavourite = !isFavourite
-                    onUnsuccessfulAdd()
+            IconButton(
+                onClick = {
+                    onFavouriteClick(session)
                 }
-            }) {
+            ) {
                 Icon(
-                    painter = painterResource(id = iconId),
+                    painter = painterResource(id = session.iconId()),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFavourite) LocalColorScheme.current.filledHeartIconTint else LocalColorScheme.current.outlinedHeartIconTint
+                    tint = session.tint()
                 )
             }
         }
     }
 }
 
-private fun LazyListScope.errorState(error: SessionsError, onTryAgainClick: () -> Unit) {
-    when (error) {
-        is SessionsError.NoInternet -> item { NoInternetError(onTryAgainClick) }
+@Composable
+private fun Session.tint(): Color {
+    return if (isFavourite) LocalColorScheme.current.filledHeartIconTint else LocalColorScheme.current.outlinedHeartIconTint
+}
+
+private fun Session.iconId(): Int {
+    return if (isFavourite) R.drawable.ic_filled_heart else R.drawable.ic_outlined_heart
+}
+
+@Composable
+private fun ErrorState(error: SessionsError, onTryAgainClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 40.dp, vertical = 160.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        when (error) {
+            is SessionsError.NoInternet -> NoInternetError(onTryAgainClick)
+        }
     }
 }
 
 @Composable
 private fun NoInternetError(onTryAgainClick: () -> Unit) {
-    Text(text = stringResource(id = R.string.error_no_internet))
+    Text(
+        text = stringResource(id = R.string.error_no_internet),
+        color = LocalColorScheme.current.primaryTextColor,
+        textAlign = TextAlign.Center
+    )
     
     Button(onClick = onTryAgainClick) {
         Text(text = stringResource(id = R.string.try_again))
     }
 }
 
-fun LazyListScope.loadingState() {
-    item {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+@Composable
+private fun LoadingState() {
+    Box(
+        modifier = Modifier
+            .height(500.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) { CircularProgressIndicator() }
+}
+
+@Composable
+private fun ShowSessionsState(
+    sessions: List<GroupedSessions>,
+    onFavouriteClick: (Session) -> Unit,
+    onSessionClick: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        sessions.forEach {
+            Text(
+                text = it.date,
+                color = LocalColorScheme.current.secondaryTextColor,
+                fontSize = LocalTypography.current.tinyFontSize,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            it.sessions.forEach { session ->
+                Session(session, onFavouriteClick, onSessionClick)
+            }
         }
     }
 }

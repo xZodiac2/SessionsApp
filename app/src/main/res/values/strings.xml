@@ -1,4 +1,3 @@
 <resources>
     <string name="app_name" translatable="false">Sessions</string>
-    <string name="unsuccessful_add">Can\'t add more then 3 favourites</string>
 </resources>
