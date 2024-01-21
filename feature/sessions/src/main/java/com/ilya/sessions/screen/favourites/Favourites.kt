@@ -19,15 +19,6 @@ import com.ilya.data.retrofit.Session
 import com.ilya.theme.LocalColorScheme
 
 @Composable
-fun Favourites(
-    favouriteList: List<Session>,
-    onSessionClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-
-}
-
-@Composable
 fun Favourite(session: Session, onFavouriteClick: (String) -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
